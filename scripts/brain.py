@@ -37,6 +37,7 @@ CONFIG = HOME_BRAIN / "config.json"
 CODE_RE = re.compile(r"```.*?```|`[^`\n]*`", re.S)
 LINK_RE = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
 CMD = f'python3 "{SCRIPT}"'
+GLOBAL = Path.home() / ".graphify" / "global-graph.json"
 
 
 def vault():
@@ -152,8 +153,16 @@ def graph_hint(proj, cwd=None):
             f"Centrais: {', '.join(gods)}\n"
             f"Antes de abrir arquivos: `graphify query \"<pergunta>\" --budget 1500`, `graphify explain \"<nó>\"`, "
             f"`graphify path \"A\" \"B\"`. Mudou código sem commit: `graphify update .`\n"
+            + global_hint()
         )
     return ""
+
+
+def global_hint():
+    if not GLOBAL.exists():
+        return ""
+    return (f"Pergunta que cruza projetos: `graphify query \"<pergunta>\" --budget 1500 --graph {GLOBAL}` "
+            "(grafo global de todos os repos ligados).\n")
 
 
 def line(n):
@@ -250,6 +259,7 @@ def cmd_context(notes, args):
         idx = ROOT / "INDEX.md"
         if idx.exists():
             print(idx.read_text(encoding="utf-8"))
+        print(global_hint())
         print(
             f"A pasta {cwd} não pertence a nenhum projeto do Brain. Se o trabalho daqui for durar, sugira em uma linha "
             "`/brain:conectar` (liga a pasta a um projeto numa área)."

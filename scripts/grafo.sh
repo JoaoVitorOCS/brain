@@ -1,7 +1,8 @@
 #!/bin/sh
 # Graphify (opcional) para o Brain. Sem LLM e sem custo de token: grafo estrutural do código (AST + markdown).
-#   grafo.sh ligar <pasta> [<id-do-projeto>]   liga o Graphify num repo (fora do git, hooks de commit, Mapa no cofre)
-#   grafo.sh atualizar <pasta>                 refaz o grafo e o Mapa se a pasta já tem grafo (hook SessionStart)
+#   grafo.sh ligar <pasta> [<id-do-projeto>]   liga o Graphify num repo (fora do git, hooks de commit, grafo global, Mapa no cofre)
+#   grafo.sh atualizar <pasta>                 refaz o grafo, o grafo global e o Mapa se a pasta já tem grafo (hook SessionStart)
+# Grafo global (~/.graphify/global-graph.json): todos os repos ligados num grafo só, para perguntas entre projetos.
 DIR_SCRIPTS="$(cd "$(dirname "$0")" && pwd)"
 GRAPHIFY="$(command -v graphify 2>/dev/null || ls "$HOME/.local/bin/graphify" 2>/dev/null)"
 ACAO="$1"; DIR="${2:-$PWD}"; ID="${3:-}"
@@ -14,6 +15,7 @@ if [ "$ACAO" = atualizar ]; then
   mkdir "$LOCK" 2>/dev/null || exit 0
   trap 'rmdir "$LOCK" 2>/dev/null' EXIT
   PYTHONHASHSEED=0 "$GRAPHIFY" update . >/dev/null 2>&1
+  "$GRAPHIFY" global add graphify-out/graph.json --as "$(basename "$DIR")" >/dev/null 2>&1
   python3 "$DIR_SCRIPTS/brain.py" mapa --cwd "$DIR" >/dev/null 2>&1
   exit 0
 fi
@@ -36,5 +38,6 @@ if [ -n "${GITDIR:-}" ]; then
   fi
   git config --local --remove-section merge.graphify 2>/dev/null || true
 fi
+"$GRAPHIFY" global add graphify-out/graph.json --as "$(basename "$DIR")" 2>&1 | tail -1
 [ -n "$ID" ] && python3 "$DIR_SCRIPTS/brain.py" mapa "$ID"
 exit 0

@@ -26,9 +26,20 @@ Depois, numa conversa nova (ou após `/reload-plugins`): **`/brain:setup`**.
 ## Onboarding em 5 minutos (`/brain:setup`)
 1. **Onde fica o cofre** (padrão `~/Brain`) e **quais áreas da vida** (pessoal, trabalho, projetos, estudos ou as suas).
 2. **Quais projetos ligar:** ele lista as pastas onde você mais usou o Claude Code e propõe a área de cada uma; você só marca.
-3. **Opcionais:** mapa do código com o [Graphify](https://pypi.org/project/graphifyy/), [Obsidian](https://obsidian.md) para
-   ver as notas, git no cofre.
+3. **Graphify (recomendado):** seguir ou não com o mapa do código. Depois, opcionais: [Obsidian](https://obsidian.md)
+   para ver as notas e git no cofre.
 4. **Prova:** mostra o contexto que a próxima conversa vai receber.
+
+## Graphify: recomendado para economizar tokens
+O [Graphify](https://pypi.org/project/graphifyy/) (grátis, local, sem LLM) gera um **mapa do código** de cada projeto.
+Com ele, o Claude consulta o mapa antes de abrir arquivos, e a pergunta típica custa **dezenas de vezes menos tokens**
+em projeto grande. Em dois repositórios reais, o `graphify benchmark` mediu ~15x e ~270x menos tokens por pergunta.
+O Brain funciona sem ele, mas com ele você ganha:
+- **Mapa do código** no contexto de cada conversa e no cofre (`Mapa/`), refeito sozinho a cada commit;
+- **Grafo global** (`~/.graphify/global-graph.json`): todos os repos ligados num grafo só, para perguntas que cruzam projetos;
+- **`/brain:medir`**: mostra quanto você está economizando (benchmark e teste A/B).
+
+O `/brain:setup` pergunta se você quer seguir com ele e instala (`pipx install graphifyy`). Dá para ligar depois com `/brain:conectar`.
 
 ## Como funciona
 O plugin traz hooks próprios, então você não edita `settings.json` nem `CLAUDE.md`:
@@ -50,6 +61,7 @@ O plugin traz hooks próprios, então você não edita `settings.json` nem `CLAU
 | `/brain:conectar` | liga uma pasta nova a um projeto (e, se quiser, o mapa do código) |
 | `/brain:consultar <assunto>` | o que o Brain sabe sobre algo |
 | `/brain:pesquisar <tarefa>` | antes de algo novo: reaproveita pesquisas, busca a melhor forma e registra |
+| `/brain:medir` | (com Graphify) quanto o mapa do código economiza de tokens |
 
 ## Privacidade
 - Tudo fica no seu computador: o cofre onde você escolher e a configuração em `~/.brain/config.json`.

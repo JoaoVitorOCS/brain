@@ -47,11 +47,26 @@ Para cada pasta marcada: `BRAIN projeto <área> <id> "<pasta>" "<resumo de uma l
 em minúsculas com hífen; o resumo você escreve a partir do README (o que é, em uma frase). Não pergunte de novo a área de
 cada uma: use a proposta que ela aprovou.
 
-## 4. Rodada 3: opcionais (uma AskUserQuestion, multiSelect, pode pular)
-- **Mapa do código (Graphify):** para pastas com código, um grafo do repositório que faz o Claude consultar o mapa antes
-  de abrir arquivos (economiza tokens em projeto grande). Grátis, sem LLM. Precisa de `pipx install graphifyy`
-  (ou `pip install graphifyy`). Se aceitar e instalar sem erro: `sh "${CLAUDE_PLUGIN_ROOT}/scripts/grafo.sh" ligar "<pasta>" <id>`
-  para cada projeto com git. Falhou: siga sem ele e diga que dá para ligar depois com `/brain:conectar`.
+## 4. Rodada 3: Graphify (recomendado) e opcionais
+**Primeiro, uma pergunta só (AskUserQuestion): seguir com o Graphify?** Explique antes, em até 3 linhas:
+o Graphify gera um **mapa do código** de cada projeto. Com ele, o Claude consulta o mapa em vez de abrir arquivo por
+arquivo, o que **economiza muitos tokens da IA**: em projeto grande, a pergunta típica custa dezenas de vezes menos.
+É grátis, roda local, sem LLM. **Recomendado** para quem programa ou tem projeto com muitos arquivos.
+Opções: **"Seguir com o Graphify (recomendado)"** · "Agora não (dá para ligar depois com /brain:conectar)".
+
+**Se seguir com o Graphify:**
+1. Instale: `pipx install graphifyy` (ou `pip install graphifyy`; no Mac sem pipx: `brew install pipx`). Confira com
+   `graphify --help`. Falhou a instalação: siga sem ele e diga que dá para ligar depois.
+2. Para cada projeto ligado que tem código: `sh "${CLAUDE_PLUGIN_ROOT}/scripts/grafo.sh" ligar "<pasta>" <id>`.
+   Isso cria o grafo (fora do git, só nesta máquina), o hook que refaz o grafo a cada commit, o **grafo global**
+   (`~/.graphify/global-graph.json`, todos os repos juntos, para perguntas que cruzam projetos) e o Mapa no cofre.
+3. Rode `graphify benchmark "<pasta do maior projeto>/graphify-out/graph.json"` e mostre a economia em uma linha
+   ("neste projeto, ~Nx menos tokens por pergunta"). Diga que `/brain:medir` repete a medição quando ela quiser.
+
+**Se não seguir:** não insista. Diga em uma linha que o Brain funciona sem ele e que `/brain:conectar` liga depois.
+Grafo global e `/brain:medir` só existem com o Graphify.
+
+**Depois, os opcionais (AskUserQuestion multiSelect, pode pular):**
 - **Obsidian:** app grátis para ver as notas, os links e os painéis. Baixar em https://obsidian.md e "Abrir pasta como cofre"
   apontando para o cofre. É só leitura confortável: o Brain funciona sem ele.
 - **Versionar o cofre:** `git init` na pasta do cofre (o `.gitignore` do template já deixa o diário de fora).
@@ -69,7 +84,8 @@ cada uma: use a proposta que ela aprovou.
 - [ ] áreas: ...
 - [ ] projetos ligados: ... (ou "nenhum ainda")
 - [ ] `lint` com 0 problemas
-- [ ] opcionais: Graphify (sim/não), Obsidian (sim/não), git do cofre (sim/não)
+- [ ] Graphify: sim (projetos com mapa, grafo global, economia medida ~Nx) ou não (ligar depois com `/brain:conectar`)
+- [ ] opcionais: Obsidian (sim/não), git do cofre (sim/não)
 
 ## Comandos (mostre no fim)
 | Comando | Quando |
@@ -81,6 +97,7 @@ cada uma: use a proposta que ela aprovou.
 | `/brain:conectar` | liga uma pasta nova a um projeto |
 | `/brain:consultar <assunto>` | o que o Brain sabe sobre algo |
 | `/brain:pesquisar <tarefa>` | antes de algo novo: busca a melhor forma e registra |
+| `/brain:medir` | (com Graphify) quanto o mapa do código está economizando de tokens |
 
 ## Regras que valem sempre
 - Só leia pastas que a pessoa marcou. Não abra transcrições de `~/.claude/projects` além do que o `sugerir` já faz.
