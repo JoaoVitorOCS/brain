@@ -644,7 +644,7 @@ def cmd_nota(notes, args):
 def cmd_sugerir(_, args):
     """Pastas onde o Claude Code mais rodou, lidas de ~/.claude/projects (só o campo cwd das transcrições)."""
     n_max = int(args[0]) if args else 15
-    base = Path.home() / ".claude" / "projects"
+    base = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude") / "projects"
     vistos = {}
     for d in base.iterdir() if base.is_dir() else []:
         if not d.is_dir():
