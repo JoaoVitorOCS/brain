@@ -1,0 +1,24 @@
+{
+  "name": "brain",
+  "owner": {
+    "name": "JoaoVitorOCS",
+    "url": "https://github.com/JoaoVitorOCS"
+  },
+  "metadata": {
+    "description": "Marketplace do Brain, o cérebro externo para o Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "brain",
+      "description": "Memória entre conversas: cofre de notas por área da vida, Status e Decisões por projeto, abertura automática com onde você parou e diário de cada sessão. Onboarding com /brain:setup.",
+      "version": "1.0.0",
+      "source": "./",
+      "category": "productivity",
+      "author": {
+        "name": "JoaoVitorOCS",
+        "url": "https://github.com/JoaoVitorOCS"
+      },
+      "homepage": "https://github.com/JoaoVitorOCS/brain"
+    }
+  ]
+}

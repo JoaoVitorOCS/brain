@@ -1,0 +1,14 @@
+filters:
+  and:
+    - 'tipo == "projeto"'
+formulas:
+  area: 'file.folder.split("/").slice(1, 2).join("")'
+views:
+  - type: table
+    name: Projetos por área
+    groupBy:
+      property: formula.area
+      direction: ASC
+    order:
+      - file.name
+      - resumo

@@ -1,0 +1,13 @@
+{
+  "name": "brain",
+  "displayName": "Brain",
+  "version": "1.0.0",
+  "description": "Brain: um cérebro externo para o Claude Code. Cofre de notas em markdown (abre no Obsidian) dividido por áreas da sua vida; cada projeto tem Status, Decisões e Mapa do código. Toda conversa começa sabendo onde você parou, e cada sessão vira um diário que você revisa. Onboarding em 5 minutos com /brain:setup.",
+  "keywords": ["memoria", "contexto", "obsidian", "notas", "segundo-cerebro", "produtividade", "graphify"],
+  "license": "MIT",
+  "author": {
+    "name": "JoaoVitorOCS",
+    "url": "https://github.com/JoaoVitorOCS"
+  },
+  "homepage": "https://github.com/JoaoVitorOCS/brain"
+}

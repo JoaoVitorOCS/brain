@@ -1,0 +1,14 @@
+filters:
+  and:
+    - 'tipo == "decisao"'
+views:
+  - type: table
+    name: Todas as decisões
+    order:
+      - data
+      - file.name
+      - projeto
+      - motivo
+    sort:
+      - property: data
+        direction: DESC
