@@ -11,7 +11,9 @@ Só usa a biblioteca padrão. Comandos:
   brain.py context [--cwd DIR]          contexto da pasta atual (usado pelo hook SessionStart)
   brain.py init <pasta> <área> [...]    cria o cofre a partir do template, com as áreas pedidas
   brain.py area <nome> [resumo]         cria uma área (módulo) nova
+  brain.py area <nome> <resumo>         (área existente) troca o resumo que entra no contexto
   brain.py projeto <área> <id> <pasta> [resumo]   liga uma pasta a um projeto na área
+  brain.py nota <área> <id> <resumo> [--sempre] < corpo   nota solta; --sempre entra em toda conversa
   brain.py sugerir [N]                  pastas onde você mais usou o Claude Code (para o onboarding)
   brain.py onde                         caminho do cofre configurado
   brain.py modulo <nome>                contexto de uma área escolhida à mão
@@ -251,9 +253,19 @@ O plugin Brain está instalado, mas o cofre ainda não existe. Na sua primeira r
 rodar `/brain:setup` (5 minutos) para ter memória entre conversas, e siga o pedido normalmente. Não repita depois."""
 
 
+def sempre(notes):
+    """Notas com `sempre: true` (ex.: preferências de trabalho) entram em toda conversa, em qualquer pasta."""
+    ns = sorted((n for n in notes.values() if str(n.get("sempre", "")).lower() in ("true", "sim")), key=lambda n: n["path"])
+    if ns:
+        print("## Valem para toda conversa (siga sem o usuário repetir)\n")
+        for n in ns:
+            print(n["body"].strip() + "\n")
+
+
 def cmd_context(notes, args):
     cwd = args[args.index("--cwd") + 1] if "--cwd" in args else os.getcwd()
     print(PROTOCOLO.format(root=ROOT, cmd=CMD))
+    sempre(notes)
     n = match_note(notes, cwd)
     if not n or not n["modulo"]:
         idx = ROOT / "INDEX.md"
@@ -456,7 +468,15 @@ def criar_area(nome, resumo=None):
     pasta = ROOT / "modulos" / nome
     idx = pasta / "_index.md"
     if idx.exists():
-        return f"área {nome} já existe"
+        if not resumo:
+            return f"área {nome} já existe"
+        t = idx.read_text(encoding="utf-8")
+        velho = re.search(r"^resumo: (.*)$", t, re.M).group(1)
+        idx.write_text(t.replace(velho, resumo), encoding="utf-8")
+        inicio = ROOT / "Inicio.md"
+        if inicio.exists():
+            inicio.write_text(inicio.read_text(encoding="utf-8").replace(f"[[{nome}]]: {velho}", f"[[{nome}]]: {resumo}"), encoding="utf-8")
+        return f"área {nome}: resumo atualizado"
     pasta.mkdir(parents=True, exist_ok=True)
     resumo = resumo or AREAS_PADRAO.get(nome) or f"Tudo sobre {titulo.lower()}."
     idx.write_text(
@@ -471,6 +491,19 @@ def criar_area(nome, resumo=None):
             t = t.replace("<!-- areas -->", f"- [[{nome}]]: {resumo}\n<!-- areas -->")
             inicio.write_text(t, encoding="utf-8")
     return f"área {nome} criada"
+
+
+def ligar_pessoal():
+    """Toda área usa a área pessoal (preferências e perfil valem em qualquer projeto)."""
+    if not (ROOT / "modulos" / "pessoal" / "_index.md").exists():
+        return
+    for idx in (ROOT / "modulos").glob("*/_index.md"):
+        if idx.parent.name == "pessoal":
+            continue
+        t = idx.read_text(encoding="utf-8")
+        if re.search(r"^usa:", t, re.M):
+            continue
+        idx.write_text(t.replace("tipo: raiz\n", "tipo: raiz\nusa: [pessoal]\n", 1), encoding="utf-8")
 
 
 def lista_no_index(idx, secao, item):
@@ -512,6 +545,7 @@ def cmd_init(_, args):
     ROOT = alvo
     for a in areas:
         print(criar_area(a))
+    ligar_pessoal()
     HOME_BRAIN.mkdir(parents=True, exist_ok=True)
     cfg = {}
     if CONFIG.exists():
@@ -532,6 +566,7 @@ def cmd_area(_, args):
         print("uso: brain.py area <nome> [resumo]")
         return 1
     print(criar_area(args[0], " ".join(args[1:]) or None))
+    ligar_pessoal()
     notes, _ = load()
     cmd_index(notes, [])
 
@@ -581,6 +616,29 @@ def cmd_projeto(notes, args):
     )
     lista_no_index(ROOT / "modulos" / area / "_index.md", "Projetos", f"- [[{pid}]]: {resumo}")
     print(f"projeto {pid} criado em modulos/{area}/{pid} → {pasta}")
+
+
+def cmd_nota(notes, args):
+    """Cria ou substitui uma nota solta numa área; o corpo vem do stdin. --sempre: entra em toda conversa."""
+    flag = "--sempre" in args
+    args = [a for a in args if a != "--sempre"]
+    if len(args) < 3:
+        print("uso: brain.py nota <área> <id> <resumo> [--sempre] < corpo.md")
+        return 1
+    area, nid, resumo = slug(args[0]), slug(args[1]), " ".join(args[2:])
+    if area not in roots(notes):
+        print(criar_area(area))
+        ligar_pessoal()
+    corpo = sys.stdin.read().strip()
+    f = ROOT / "modulos" / area / f"{nid}.md"
+    extra = "sempre: true\n" if flag else ""
+    f.write_text(
+        f"---\nid: {nid}\ntipo: sub\nresumo: {resumo}\n{extra}atualizado: {date.today().isoformat()}\ntags: [{area}]\n---\n"
+        f"{corpo}\n\nParte de [[{area}]].\n",
+        encoding="utf-8",
+    )
+    lista_no_index(ROOT / "modulos" / area / "_index.md", "Notas", f"- [[{nid}]]: {resumo}")
+    print(f"nota {nid} gravada em modulos/{area}/{nid}.md" + (" (entra em toda conversa)" if flag else ""))
 
 
 def cmd_sugerir(_, args):
@@ -657,6 +715,7 @@ def main():
         "mapa": cmd_mapa,
         "area": cmd_area,
         "projeto": cmd_projeto,
+        "nota": cmd_nota,
     }.get(cmd)
     if not fn:
         print(__doc__)

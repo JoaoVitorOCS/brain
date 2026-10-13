@@ -8,7 +8,7 @@ description: Onboarding do Brain em cerca de 5 minutos. Cria o cofre de notas (�
 Você vai montar o Brain **da pessoa que está conversando com você**: com as áreas da vida e os projetos DELA.
 Nada aqui pertence a outra pessoa. Os exemplos são neutros.
 
-**Meta: pronto em 5 minutos, com no máximo 3 rodadas de perguntas.** Proponha sempre um padrão bom e deixe a pessoa
+**Meta: pronto em 5 minutos, com no máximo 3 rodadas de perguntas** (+1 opcional de preferências). Proponha sempre um padrão bom e deixe a pessoa
 só confirmar ou ajustar. Use AskUserQuestion, idioma da pessoa (padrão: português do Brasil), linguagem simples.
 Não explique a arquitetura: mostre funcionando.
 
@@ -31,10 +31,12 @@ Confira `python3 --version` (3.9+). Faltou: Mac `brew install python`, Linux `su
    ofereça uma pasta dentro do cofre dela (ex.: `<cofre>/Brain`), nunca a raiz de um cofre existente.
 2. **Quais áreas da vida?** (multiSelect) `pessoal`, `trabalho`, `projetos` (próprios: produtos, estudos, ideias),
    `estudos`. Pela opção "Other" ela escreve outras (ex.: "saúde", "finanças da casa", "faculdade").
-   Recomende começar com 2 ou 3: área sem projeto nenhum vira ruído.
+   Recomende começar com 2 ou 3: área sem projeto nenhum vira ruído. Recomende manter `pessoal`: é dela que saem as
+   preferências que valem em toda conversa.
 
 Rode: `BRAIN init "<pasta>" <área> <área> ...` (nomes com espaço entre aspas). Ele copia o template, cria as áreas,
-grava `~/.brain/config.json` e gera o `INDEX.md`.
+grava `~/.brain/config.json` e gera o `INDEX.md`. Se existir `pessoal`, toda outra área passa a **usar** `pessoal`
+(`usa: [pessoal]`) sozinha: o perfil e as preferências entram no contexto de qualquer projeto. Não pergunte isso.
 
 ## 3. Rodada 2: conectar os projetos (o que acelera tudo)
 `BRAIN sugerir 12` lista as pastas onde ela mais usou o Claude Code (lidas de `~/.claude/projects`, só o caminho).
@@ -46,6 +48,18 @@ Pasta que ela não reconhecer ou não quiser: fica de fora, sem perguntar de nov
 Para cada pasta marcada: `BRAIN projeto <área> <id> "<pasta>" "<resumo de uma linha>"`. O `id` é o nome da pasta
 em minúsculas com hífen; o resumo você escreve a partir do README (o que é, em uma frase). Não pergunte de novo a área de
 cada uma: use a proposta que ela aprovou.
+
+**Resumo de cada área (sem pergunta extra).** O `resumo` da área entra no contexto de toda conversa: resumo vago vira ruído.
+Escreva uma linha por área a partir do nome dela e dos projetos que caíram nela (ex.: "Meu trabalho na empresa X: app de
+agendamento e painel interno."; nunca invente o que não viu). Mostre todas juntas numa lista curta, num texto só, e diga
+"ajusto alguma?". Sem ajuste, grave: `BRAIN area <área> "<resumo>"` (troca o resumo de uma área que já existe).
+
+**Preferências de trabalho (uma pergunta opcional, só se ela manteve `pessoal`).** Uma AskUserQuestion multiSelect
+"Como você quer que a IA trabalhe com você?" com 4 opções comuns que você propõe (ex.: "direto ao ponto, sem rodeio",
+"pedir aprovação antes de apagar, publicar ou gastar", "explicar o porquê das escolhas", "sempre em português do Brasil")
+e o "Other" para o que ela quiser. Pulou: siga sem criar a nota. Respondeu: grave as escolhas como lista curta em
+`printf '# Como trabalhar comigo\n\n- ...\n' | BRAIN nota pessoal preferencias "Como quero que a IA trabalhe comigo em qualquer projeto." --sempre`.
+O `--sempre` faz essa nota entrar em **toda** conversa, em qualquer pasta.
 
 ## 4. Rodada 3: Graphify (recomendado) e opcionais
 **Primeiro, uma pergunta só (AskUserQuestion): seguir com o Graphify?** Explique antes, em até 3 linhas:
@@ -79,13 +93,32 @@ Grafo global e `/brain:medir` só existem com o Graphify.
 3. Diga o próximo passo concreto: "abra uma conversa nova em `<pasta>` e pergunte qualquer coisa: a primeira resposta já
    abre com o Status. No fim do trabalho, `/brain:fechar`."
 
+## 6. Próximas etapas (obrigatório: mostre sempre, no fim, antes do checklist)
+Diga com todas as letras: **"O Brain já funciona, mas fica mais eficiente conforme você pluga estas etapas. Nenhuma é
+obrigatória agora."** Mostre só as que ainda faltam para ela, numa tabela `Etapa · Por que vale · Como`:
+| Etapa | Por que vale | Como |
+|---|---|---|
+| Graphify (se não seguiu) | **recomendado**: economiza muitos tokens nos projetos com código; traz grafo global e `/brain:medir` | `/brain:conectar` na pasta do projeto |
+| Preferências de trabalho (se pulou) | o Claude passa a trabalhar do seu jeito em toda conversa, sem você repetir | `/brain:lembrar` "prefiro que..." |
+| Perfil em `pessoal` | quem você é, o que faz, nível técnico: respostas no seu nível | `/brain:lembrar` "sobre mim: ..." |
+| Mais pastas | só pasta ligada abre com o Status; as outras começam do zero | `/brain:conectar` em cada pasta nova |
+| Stack e padrões de cada projeto | evita o Claude reaprender o projeto a cada conversa | preenche sozinho ao longo do uso; ou peça "preencha a stack deste projeto" |
+| Hábito do `/brain:fechar` | é o que faz a próxima conversa saber onde você parou | no fim de cada trabalho |
+| `/brain:revisar` semanal | o diário só vira memória depois da revisão | uma vez por semana |
+| Áreas que dependem de outra | ex.: "produtos" puxar "marca" | `/brain:conectar` sugere quando aparecer; ou peça para ligar |
+| Obsidian / git privado do cofre (se pulou) | ver os links e painéis; histórico e backup | passo 4 deste setup |
+Feche com uma linha: "Quer plugar alguma agora?". Se sim, faça; se não, encerre.
+
 ## Checklist final (mostre marcado)
 - [ ] cofre criado em `<pasta>` e `~/.brain/config.json` gravado
 - [ ] áreas: ...
 - [ ] projetos ligados: ... (ou "nenhum ainda")
 - [ ] `lint` com 0 problemas
 - [ ] Graphify: sim (projetos com mapa, grafo global, economia medida ~Nx) ou não (ligar depois com `/brain:conectar`)
+- [ ] resumo de cada área aprovado; áreas usam `pessoal` (se existir)
+- [ ] preferências de trabalho: gravadas (entram em toda conversa) ou "depois"
 - [ ] opcionais: Obsidian (sim/não), git do cofre (sim/não)
+- [ ] próximas etapas mostradas
 
 ## Comandos (mostre no fim)
 | Comando | Quando |

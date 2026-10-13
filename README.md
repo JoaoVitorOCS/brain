@@ -28,7 +28,11 @@ Depois, numa conversa nova (ou após `/reload-plugins`): **`/brain:setup`**.
 2. **Quais projetos ligar:** ele lista as pastas onde você mais usou o Claude Code e propõe a área de cada uma; você só marca.
 3. **Graphify (recomendado):** seguir ou não com o mapa do código. Depois, opcionais: [Obsidian](https://obsidian.md)
    para ver as notas e git no cofre.
+   No caminho, ele escreve o resumo de cada área (você só aprova) e, se quiser, grava como você gosta que a IA trabalhe:
+   essa nota entra em **toda** conversa, em qualquer pasta.
 4. **Prova:** mostra o contexto que a próxima conversa vai receber.
+5. **Próximas etapas:** o Brain já funciona no fim do setup, mas fica mais eficiente conforme você pluga o resto (Graphify,
+   perfil, mais pastas, o hábito do `/brain:fechar` e a revisão semanal do diário). O setup mostra o que falta para você.
 
 ## Graphify: recomendado para economizar tokens
 O [Graphify](https://pypi.org/project/graphifyy/) (grátis, local, sem LLM) gera um **mapa do código** de cada projeto.
