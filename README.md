@@ -23,6 +23,8 @@ Depois, numa conversa nova (ou após `/reload-plugins`): **`/brain:setup`**.
 
 > Os comandos de plugin levam o nome do plugin na frente: é **`/brain:setup`**. Digite `/brain:` para ver todos.
 
+**Guia de uso em 1 página:** [GUIA.md](GUIA.md) (instalar, o hábito do dia a dia, medir a economia de tokens).
+
 ## Onboarding em 5 minutos (`/brain:setup`)
 1. **Onde fica o cofre** (padrão `~/Brain`) e **quais áreas da vida** (pessoal, trabalho, projetos, estudos ou as suas).
 2. **Quais projetos ligar:** ele lista as pastas onde você mais usou o Claude Code e propõe a área de cada uma; você só marca.
