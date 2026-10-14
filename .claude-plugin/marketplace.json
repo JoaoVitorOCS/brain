@@ -11,7 +11,7 @@
     {
       "name": "brain",
       "description": "Memória entre conversas: cofre de notas por área da vida, Status e Decisões por projeto, abertura automática com onde você parou e diário de cada sessão. Onboarding com /brain:setup.",
-      "version": "1.0.0",
+      "version": "1.0.2-luizp2",
       "source": "./",
       "category": "productivity",
       "author": {

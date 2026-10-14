@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/brain.py\" context --cwd \"$PWD\"",
-            "timeout": 10
+            "command": "/bin/sh \"${CLAUDE_PLUGIN_ROOT}/scripts/sync.sh\" pull; python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/brain.py\" context --cwd \"$PWD\"",
+            "timeout": 20
           },
           {
             "type": "command",

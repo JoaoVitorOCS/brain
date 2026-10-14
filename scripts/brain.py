@@ -131,7 +131,7 @@ def members(notes, mod):
 
 def project_parts(notes, proj):
     folder = str(Path(proj["path"]).parent)
-    inside = [n for n in notes.values() if n["path"].startswith(folder + "/")]
+    inside = [n for n in notes.values() if n["path"].startswith(folder + os.sep)]
     status = next((n for n in inside if n.get("tipo") == "status"), None)
     decs = sorted((n for n in inside if n.get("tipo") == "decisao"), key=lambda n: str(n.get("data", n["id"])), reverse=True)
     return status, decs
@@ -345,7 +345,7 @@ def cmd_index(notes, _):
         cats = [n for n in ms if n.get("tipo") == "categoria"]
         if cats:
             for c in sorted(cats, key=lambda n: n["path"]):
-                folder = str(Path(c["path"]).parent) + "/"
+                folder = str(Path(c["path"]).parent) + os.sep
                 projs = sorted(n["id"] for n in ms if n.get("tipo") == "projeto" and n["path"].startswith(folder))
                 lines.append(f"  - {c['id']}: {', '.join(projs) or '(nenhum)'}")
             rest = [n["id"] for n in ms if n.get("tipo") != "categoria" and str(Path(n["path"]).parent) == r_dir(r)]
