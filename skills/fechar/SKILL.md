@@ -18,4 +18,6 @@ Atualize `<projeto>/Status.md` e o `atualizado:` do frontmatter (AAAA-MM-DD):
 - Decisão nova com motivo: vira nota pelo formato do `/brain:decisao`, ligada a `[[status-<projeto>]]`.
 
 Se mudou código e a pasta tem `graphify-out/`: `graphify update .` e `BRAIN mapa <projeto>`.
-Fim: `BRAIN lint && BRAIN index` e uma linha com o que mudou. Nada de segredo, chave ou valor financeiro.
+Fim: `BRAIN lint && BRAIN index`, depois `sh "${CLAUDE_PLUGIN_ROOT}/scripts/sync.sh" push` (commit e push do cofre, se ele
+tiver repositório git com remoto; sem remoto não faz nada) e uma linha com o que mudou e o resultado do push. Se o push
+acusar conflito ou falha, diga em uma linha e mostre o comando sugerido. Nada de segredo, chave ou valor financeiro.
